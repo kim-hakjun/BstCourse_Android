@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.example.simpleapp.R;
-
 public class ReviewItemView extends LinearLayout {
     ImageView mUserImage;
     TextView mUserId;
