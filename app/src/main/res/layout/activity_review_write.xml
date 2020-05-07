@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/rv_movieTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:drawableRight="@drawable/ic_15"
+        android:drawablePadding="5dp"
+        android:text="title"
+        android:textSize="25dp" />
+
+    <RatingBar
+        android:id="@+id/rv_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:numStars="5"
+        android:rating="3"
+        android:isIndicator="false"
+        android:stepSize="0.5" />
+
+    <TextView
+        android:id="@+id/rv_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:inputType="text"
+        android:text="평점을 입력해 주세요"
+        android:textSize="20dp" />
+
+    <EditText
+        android:id="@+id/rv_comment"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/border_yellow"
+        android:gravity="top"
+        android:hint="100자 이내로 작성해주세요."
+        android:padding="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal"
+        android:gravity="right">
+
+        <Button
+            android:id="@+id/rv_saveBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border_purple"
+            android:text="저장" />
+
+        <Button
+            android:id="@+id/rv_cancelBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_purple"
+            android:text="취소" />
+
+    </LinearLayout>
+
+
+</LinearLayout>
