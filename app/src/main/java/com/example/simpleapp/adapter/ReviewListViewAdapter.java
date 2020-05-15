@@ -1,8 +1,11 @@
-package com.example.simpleapp;
+package com.example.simpleapp.adapter;
 
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import com.example.simpleapp.ReviewItem;
+import com.example.simpleapp.ReviewItemView;
 
 import java.util.ArrayList;
 

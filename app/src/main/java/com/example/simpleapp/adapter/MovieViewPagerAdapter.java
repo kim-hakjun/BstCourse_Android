@@ -1,14 +1,16 @@
-package com.example.simpleapp;
+package com.example.simpleapp.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.simpleapp.fragment.MoviePreviewFragment;
+
 import java.util.ArrayList;
 
 public class MovieViewPagerAdapter extends FragmentPagerAdapter {
-    ArrayList<MoviePreviewFragment> items = new ArrayList<>();
+    ArrayList<MoviePreviewFragment> items = new ArrayList<MoviePreviewFragment>();
 
     public MovieViewPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);

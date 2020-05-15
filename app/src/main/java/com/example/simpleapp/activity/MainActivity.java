@@ -1,4 +1,4 @@
-package com.example.simpleapp;
+package com.example.simpleapp.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -16,6 +16,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+import com.example.simpleapp.FragmentCallback;
+import com.example.simpleapp.fragment.HomeFragment;
+import com.example.simpleapp.fragment.MovieDetailFragment;
+import com.example.simpleapp.fragment.MovieListFragment;
+import com.example.simpleapp.fragment.MoviePreviewFragment;
+import com.example.simpleapp.adapter.MovieViewPagerAdapter;
+import com.example.simpleapp.R;
+import com.example.simpleapp.fragment.TempFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -54,19 +62,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        // setting ViewPager
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image1, 1,"군도"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image2, 2,"공조"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image3, 3,"더킹"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image4, 4,"레지던트 이블"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image5, 5,"럭키"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image6, 6,"아수라"));
 
-        mMovieViewPager.setOffscreenPageLimit(3);
+        // 초기 화면
+        FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, HomeFragment.newInstance());
+        transaction.addToBackStack(null);   // for BackPressed
+        transaction.commit();
 
-        mMovieViewPagerAdapter = new MovieViewPagerAdapter(getSupportFragmentManager());
-        mMovieViewPagerAdapter.replaceItems(mMoviePreviewFragmentList);
-        mMovieViewPager.setAdapter(mMovieViewPagerAdapter);
     }
 
     @Override
@@ -87,25 +88,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
+        Fragment frag = null;
+        String title = getString(R.string.app_name);
+
         switch (id) {
             case R.id.nav_movie_list:
+                title = "영화 목록";
                 if(mMovieDetailFragment != null) {
-                    mToolbar.setTitle("영화 목록");
                     mFragmentManager.beginTransaction().remove(mMovieDetailFragment).commit();
                 }
+                frag = MovieListFragment.newInstance();
                 break;
 
             case R.id.nav_movie_api:
-                mToolbar.setTitle("영화 API");
+                title = "영화 API";
+                frag = TempFragment.newInstance();
                 break;
 
             case R.id.nav_reserve:
-                mToolbar.setTitle("예매하기");
+                title = "예매하기";
+                frag = TempFragment.newInstance();
                 break;
 
             case R.id.nav_settings:
-                mToolbar.setTitle("사용자 설정");
+                title = "사용자 설정";
+                frag = TempFragment.newInstance();
                 break;
+        }
+
+        if(frag != null) {
+            mFragmentManager.beginTransaction().replace(R.id.frameContainer, frag).commit();
+            mToolbar.setTitle(title);
         }
 
         // close drawer

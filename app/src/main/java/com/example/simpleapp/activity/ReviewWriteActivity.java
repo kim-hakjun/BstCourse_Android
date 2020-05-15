@@ -1,4 +1,4 @@
-package com.example.simpleapp;
+package com.example.simpleapp.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
+
+import com.example.simpleapp.R;
+import com.example.simpleapp.ReviewItem;
 
 public class ReviewWriteActivity extends AppCompatActivity {
     TextView mRv_movieTitle;

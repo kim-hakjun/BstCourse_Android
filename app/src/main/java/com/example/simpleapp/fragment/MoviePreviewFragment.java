@@ -1,6 +1,5 @@
-package com.example.simpleapp;
+package com.example.simpleapp.fragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.simpleapp.FragmentCallback;
+import com.example.simpleapp.R;
 
 public class MoviePreviewFragment extends Fragment {
 

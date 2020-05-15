@@ -23,7 +23,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="@string/movie_list" />
+                app:title="@string/app_name" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -34,14 +34,14 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewpager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingStart="40dp"
-                android:paddingEnd="40dp"
-                />
+<!--            <androidx.viewpager.widget.ViewPager-->
+<!--                android:id="@+id/viewpager"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:clipToPadding="false"-->
+<!--                android:paddingStart="40dp"-->
+<!--                android:paddingEnd="40dp"-->
+<!--                />-->
 
         </FrameLayout>
 

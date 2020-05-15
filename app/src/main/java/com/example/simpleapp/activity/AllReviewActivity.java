@@ -1,6 +1,5 @@
-package com.example.simpleapp;
+package com.example.simpleapp.activity;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +12,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.simpleapp.R;
+import com.example.simpleapp.ReviewItem;
+import com.example.simpleapp.adapter.ReviewListViewAdapter;
+
 import java.util.ArrayList;
 
 public class AllReviewActivity extends AppCompatActivity {
@@ -21,8 +24,8 @@ public class AllReviewActivity extends AppCompatActivity {
     Button mReviewWriteTextBtn;
     ListView mReviewListView;
 
-    com.example.simpleapp.ReviewListViewAdapter mAdapter;
-    ArrayList<com.example.simpleapp.ReviewItem> mReviewList;
+    ReviewListViewAdapter mAdapter;
+    ArrayList<ReviewItem> mReviewList;
 
     public enum reqType {
         COMMENTING(101);
@@ -50,14 +53,14 @@ public class AllReviewActivity extends AppCompatActivity {
         mReviewWriteTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent rv_intent = new Intent(getApplicationContext(), com.example.simpleapp.ReviewWriteActivity.class);
+                Intent rv_intent = new Intent(getApplicationContext(), ReviewWriteActivity.class);
                 rv_intent.putExtra("movieTitle", mAr_movieTitle.getText().toString());
                 rv_intent.putExtra("movieTitle", mAr_movieTitle.getText().toString());
                 startActivityForResult(rv_intent, reqType.COMMENTING.getValue());
             }
         });
 
-        mAdapter = new com.example.simpleapp.ReviewListViewAdapter(mReviewList);
+        mAdapter = new ReviewListViewAdapter(mReviewList);
         mReviewListView.setAdapter(mAdapter);
     }
 

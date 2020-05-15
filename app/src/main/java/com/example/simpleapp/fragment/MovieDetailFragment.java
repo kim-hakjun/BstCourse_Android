@@ -1,4 +1,4 @@
-package com.example.simpleapp;
+package com.example.simpleapp.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -16,6 +16,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.simpleapp.R;
+import com.example.simpleapp.ReviewItem;
+import com.example.simpleapp.adapter.ReviewListViewAdapter;
+import com.example.simpleapp.activity.AllReviewActivity;
+import com.example.simpleapp.activity.ReviewWriteActivity;
 
 import java.util.ArrayList;
 
