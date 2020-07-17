@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.simpleapp.adapter.MovieViewPagerAdapter;
 import com.example.simpleapp.R;
+import com.example.simpleapp.model.MovieSummaryInfo;
 
 import java.util.ArrayList;
 
@@ -22,11 +23,14 @@ public class MovieListFragment extends Fragment {
     private MovieViewPagerAdapter mMovieViewPagerAdapter;
 
     private ArrayList<MoviePreviewFragment> mMoviePreviewFragmentList = new ArrayList<>();
+    ArrayList<MovieSummaryInfo> movieList;
 
-    // not use bundle
-    public static MovieListFragment newInstance() {
+    public static MovieListFragment newInstance(ArrayList<MovieSummaryInfo> movieList) {
         MovieListFragment frag = new MovieListFragment();
         Bundle args = new Bundle();
+
+        args.putParcelableArrayList("movieList", movieList);
+
         frag.setArguments(args);
         return frag;
     }
@@ -44,6 +48,11 @@ public class MovieListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getArguments() != null) {
+            movieList = getArguments().getParcelableArrayList("movieList");
+        }
+
     }
 
     @Nullable
@@ -53,13 +62,10 @@ public class MovieListFragment extends Fragment {
 
         mMovieViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
 
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image1, 1,"군도"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image2, 2,"공조"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image3, 3,"더킹"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image4, 4,"레지던트 이블"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image5, 5,"럭키"));
-        mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(R.drawable.image6, 6,"아수라"));
-
+        for(int i = 0; i < movieList.size(); i++) {
+            MovieSummaryInfo movie = movieList.get(i);
+            mMoviePreviewFragmentList.add(MoviePreviewFragment.newInstance(movie.image, movie.id, movie.title, movie.reservation_rate, movie.grade));
+        }
         mMovieViewPager.setOffscreenPageLimit(3);
 
 //        mMovieViewPagerAdapter = new MovieViewPagerAdapter(getActivity().getSupportFragmentManager());

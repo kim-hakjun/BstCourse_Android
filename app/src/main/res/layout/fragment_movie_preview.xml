@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/movie_poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="400dp"
         android:src="@drawable/image1" />
 
     <LinearLayout
@@ -55,9 +55,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/text_split"
             android:paddingRight="5dp"
-            android:text="예매율: 61.6%"
+            android:text="예매율: "
+            android:textColor="@android:color/white"
+            android:textSize="15dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/movie_reservationRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
             android:textColor="@android:color/white"
             android:textSize="15dp"
             android:textStyle="bold" />
@@ -65,22 +73,31 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingRight="10dp"
             android:background="@drawable/text_split"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="15세 관람가"
+            android:text="%"
+            android:textColor="@android:color/white"
+            android:textSize="15dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/movie_grade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:text=""
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/text_split"
-            android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:text="D-1"
+            android:text="세 관람가"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
+
+
     </LinearLayout>
 
     <Button

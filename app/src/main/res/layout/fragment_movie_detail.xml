@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_15"
                     android:drawablePadding="5dp"
-                    android:text="군도"
+                    android:text="영화제목"
                     android:textColor="@android:color/white"
                     android:textSize="25dp"
                     android:textStyle="bold" />
@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="2014. 07. 23 개봉"
+                    android:text="개봉날짜"
                     android:textColor="@android:color/white"
                     android:textSize="15dp"
                     android:textStyle="bold" />
@@ -59,10 +59,34 @@
                     android:id="@+id/movieGenre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="액션 / 137분"
+                    android:text="영화장르"
                     android:textColor="@android:color/white"
                     android:textSize="15dp"
                     android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/movieTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="영화시간"
+                        android:textColor="@android:color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="분"
+                        android:textColor="@android:color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -83,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:gravity="center"
-                        android:text="15"
+                        android:text="좋아요"
                         android:textColor="@android:color/white"
                         android:textSize="18dp"
                         android:textStyle="bold" />
@@ -102,7 +126,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:gravity="center"
-                        android:text="5"
+                        android:text="싫어요"
                         android:textColor="@android:color/white"
                         android:textSize="18dp"
                         android:textStyle="bold" />
@@ -126,6 +150,7 @@
                 android:orientation="vertical"
                 android:padding="5dp"
                 android:background="@drawable/border_split"
+                android:gravity="center"
                 android:layout_weight="1">
 
                 <TextView
@@ -136,13 +161,47 @@
                     android:text="예매율"
                     android:textSize="18dp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="5위 1.8%"
-                    android:textStyle="bold"
-                    android:textSize="18dp"/>
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/movieReservationGrade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="x"
+                        android:textStyle="bold"
+                        android:textSize="18dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:gravity="center"
+                        android:text="위"
+                        android:textStyle="bold"
+                        android:textSize="18dp"/>
+
+                    <TextView
+                        android:id="@+id/movieReservationRate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="xx"
+                        android:textStyle="bold"
+                        android:textSize="18dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="%"
+                        android:textStyle="bold"
+                        android:textSize="18dp"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -168,6 +227,7 @@
                     android:orientation="horizontal">
 
                     <RatingBar
+                        android:id="@+id/ratingBarInDetails"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -178,10 +238,11 @@
                         style="?android:attr/ratingBarStyleSmall"/>
 
                     <TextView
+                        android:id="@+id/reviewerRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="8.2"
-                        android:textSize="18dp"
+                        android:text="X.X점"
+                        android:textSize="15dp"
                         android:textStyle="bold"/>
                 </LinearLayout>
 
@@ -193,6 +254,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:padding="5dp"
+                android:gravity="center"
                 android:layout_weight="1">
 
                 <TextView
@@ -203,13 +265,25 @@
                     android:text="누적관객수"
                     android:textSize="18dp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="839,399명"
-                    android:textSize="18dp"
-                    android:textStyle="bold"/>
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/audience"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="OOO"
+                        android:textSize="18dp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="명"
+                        android:textSize="18dp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -236,7 +310,7 @@
                 android:id="@+id/movieDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/movie_description"
+                android:text="영화 줄거리"
                 android:textSize="15dp" />
         </LinearLayout>
 
@@ -274,7 +348,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
-                    android:text="윤종빈"
+                    android:text="감독 이름"
                     android:textSize="15dp" />
             </LinearLayout>
 
@@ -296,7 +370,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
-                    android:text="하정우(도치), 강동원(조윤)"
+                    android:text="출연 배우"
                     android:textSize="15dp" />
             </LinearLayout>
 

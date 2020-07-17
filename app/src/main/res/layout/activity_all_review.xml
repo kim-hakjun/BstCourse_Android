@@ -29,6 +29,7 @@
             android:gravity="right">
 
             <RatingBar
+                android:id="@+id/ratingBarInAllReview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
@@ -38,18 +39,33 @@
                 style="?android:attr/ratingBarStyleSmall"/>
 
             <TextView
+                android:id="@+id/ratingInAllReview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
-                android:text="8.2"
+                android:text="x.x"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="("
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/reviewerNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OO"
                 android:textSize="18dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
-                android:text="(xxx명 참여)"
+                android:text="명 참여)"
                 android:textSize="18dp"/>
+
         </LinearLayout>
     </LinearLayout>
 

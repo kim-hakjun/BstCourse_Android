@@ -40,7 +40,7 @@
         android:layout_margin="10dp"
         android:background="@drawable/border_yellow"
         android:gravity="top"
-        android:hint="100자 이내로 작성해주세요."
+        android:hint="100자 이내로 작성해주세요.(최소 5자)"
         android:padding="10dp" />
 
     <LinearLayout

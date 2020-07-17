@@ -15,7 +15,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.simpleapp.FragmentCallback;
 import com.example.simpleapp.fragment.HomeFragment;
 import com.example.simpleapp.fragment.MovieDetailFragment;
@@ -24,7 +30,12 @@ import com.example.simpleapp.fragment.MoviePreviewFragment;
 import com.example.simpleapp.adapter.MovieViewPagerAdapter;
 import com.example.simpleapp.R;
 import com.example.simpleapp.fragment.TempFragment;
+import com.example.simpleapp.model.MovieDetailsList;
+import com.example.simpleapp.model.MovieSummaryList;
+import com.example.simpleapp.model.ResponseMovieInfo;
+import com.example.simpleapp.util.RequestHelper;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -40,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private MovieViewPagerAdapter mMovieViewPagerAdapter;
     private ArrayList<MoviePreviewFragment> mMoviePreviewFragmentList = new ArrayList<>();
+
+    MovieSummaryList movieSummaryList;
+    MovieDetailsList movieDetailsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +81,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, HomeFragment.newInstance());
         transaction.addToBackStack(null);   // for BackPressed
         transaction.commit();
+
+        // 영화 목록 데이터 받기
+        if(RequestHelper.requestQueue == null) {
+            RequestHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        requestMovieList();
 
     }
 
@@ -98,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if(mMovieDetailFragment != null) {
                     mFragmentManager.beginTransaction().remove(mMovieDetailFragment).commit();
                 }
-                frag = MovieListFragment.newInstance();
+
+                // 영화목록 프레그먼트로 ArrayList<movieBriefInfo> 넘겨줌
+                frag = MovieListFragment.newInstance(movieSummaryList.result);
                 break;
 
             case R.id.nav_movie_api:
@@ -129,10 +151,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onDetailSelected(int id) {
-        mMovieDetailFragment = new MovieDetailFragment();
-        FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, mMovieDetailFragment);
-        transaction.addToBackStack(null);   // for BackPressed
-        transaction.commit();
-        mToolbar.setTitle("영화 상세");
+        String url = "http://" + RequestHelper.host + ":" + RequestHelper.port + "/movie/readMovie?id=";
+        url += id;
+
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        ResponseMovieInfo info = gson.fromJson(response, ResponseMovieInfo.class);
+
+                        if(info.code == 200) {
+                            MovieDetailsList movieDetailsList = gson.fromJson(response, MovieDetailsList.class);
+
+                            mMovieDetailFragment = MovieDetailFragment.newInstance(movieDetailsList.result.get(0));
+                            FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, mMovieDetailFragment);
+                            transaction.addToBackStack(null);   // for BackPressed
+                            transaction.commit();
+                            mToolbar.setTitle("영화 상세");
+
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+        request.setShouldCache(false);
+        RequestHelper.requestQueue.add(request);
     }
+
+    public void requestMovieList() {
+        String url = "http://" + RequestHelper.host + ":" + Integer.toString(RequestHelper.port) + "/movie/readMovieList";
+        url += "?" + "type=1";
+
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        processMovieList(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+
+                    }
+                }
+        );
+
+        request.setShouldCache(false);
+        RequestHelper.requestQueue.add(request);
+
+    }
+
+    // 받은 영화 데이터 처리 (JSON -> Object)
+    public void processMovieList(String response) {
+        Gson gson = new Gson();
+
+        ResponseMovieInfo info = gson.fromJson(response, ResponseMovieInfo.class);
+
+        if(info.code == 200) {
+            movieSummaryList = gson.fromJson(response, MovieSummaryList.class);
+        }
+    }
+
 }

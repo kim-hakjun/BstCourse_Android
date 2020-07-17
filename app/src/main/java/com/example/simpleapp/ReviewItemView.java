@@ -17,7 +17,7 @@ public class ReviewItemView extends LinearLayout {
     TextView mWriteTime;
     RatingBar mRating;
     TextView mUserReview;
-    TextView mRecommend;
+    TextView mRecommendText, mRecommendCnt;
     Button mReportBtn;
 
     public ReviewItemView(Context context) {
@@ -39,7 +39,8 @@ public class ReviewItemView extends LinearLayout {
         mWriteTime = (TextView)findViewById(R.id.writeTime);
         mRating = (RatingBar)findViewById(R.id.rating);
         mUserReview = (TextView)findViewById(R.id.userReview);
-        mRecommend = (TextView)findViewById(R.id.recommend);
+        mRecommendText = (TextView)findViewById(R.id.recommendText);
+        mRecommendCnt = (TextView)findViewById(R.id.recommendCnt);
         mReportBtn = (Button)findViewById(R.id.reportBtn);
     }
 
@@ -63,7 +64,11 @@ public class ReviewItemView extends LinearLayout {
         mUserReview.setText(param);
     }
 
-    public void setmRecommend(int param) {
-        mRecommend.setText(String.valueOf(param));
+    public void setmRecommendText(String param) {
+        mRecommendText.setText(param);
+    }
+
+    public void setmRecommendCnt(int param) {
+        mRecommendCnt.setText(String.valueOf(param));
     }
 }
