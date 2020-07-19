@@ -18,11 +18,13 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.simpleapp.FragmentCallback;
+import com.example.simpleapp.db.DBHelper;
 import com.example.simpleapp.fragment.HomeFragment;
 import com.example.simpleapp.fragment.MovieDetailFragment;
 import com.example.simpleapp.fragment.MovieListFragment;
@@ -33,6 +35,7 @@ import com.example.simpleapp.fragment.TempFragment;
 import com.example.simpleapp.model.MovieDetailsList;
 import com.example.simpleapp.model.MovieSummaryList;
 import com.example.simpleapp.model.ResponseMovieInfo;
+import com.example.simpleapp.util.NetworkHelper;
 import com.example.simpleapp.util.RequestHelper;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
@@ -52,8 +55,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MovieViewPagerAdapter mMovieViewPagerAdapter;
     private ArrayList<MoviePreviewFragment> mMoviePreviewFragmentList = new ArrayList<>();
 
-    MovieSummaryList movieSummaryList;
-    MovieDetailsList movieDetailsList;
+
+    MovieSummaryList movieSummaryList = new MovieSummaryList();
+    MovieDetailsList movieDetailsList = new MovieDetailsList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +86,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         transaction.addToBackStack(null);   // for BackPressed
         transaction.commit();
 
+        // open DB
+        DBHelper.openDB(getApplicationContext());
+
         // 영화 목록 데이터 받기
-        if(RequestHelper.requestQueue == null) {
-            RequestHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            if(RequestHelper.requestQueue == null) {
+                RequestHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+            }
+            requestMovieList();
+        }else {
+            Toast.makeText(getApplicationContext(), "네트워크 연결 없음(DB에서 불러옴)", Toast.LENGTH_LONG).show();
+            // DB에서 불러오기
+            movieSummaryList.result = DBHelper.selectMovieSummaryInfos();
         }
-        requestMovieList();
 
     }
 
@@ -149,44 +162,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public void onDetailSelected(int id) {
-        String url = "http://" + RequestHelper.host + ":" + RequestHelper.port + "/movie/readMovie?id=";
-        url += id;
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-                        ResponseMovieInfo info = gson.fromJson(response, ResponseMovieInfo.class);
-
-                        if(info.code == 200) {
-                            MovieDetailsList movieDetailsList = gson.fromJson(response, MovieDetailsList.class);
-
-                            mMovieDetailFragment = MovieDetailFragment.newInstance(movieDetailsList.result.get(0));
-                            FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, mMovieDetailFragment);
-                            transaction.addToBackStack(null);   // for BackPressed
-                            transaction.commit();
-                            mToolbar.setTitle("영화 상세");
-
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        RequestHelper.requestQueue.add(request);
-    }
-
     public void requestMovieList() {
         String url = "http://" + RequestHelper.host + ":" + Integer.toString(RequestHelper.port) + "/movie/readMovieList";
         url += "?" + "type=1";
@@ -222,7 +197,66 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(info.code == 200) {
             movieSummaryList = gson.fromJson(response, MovieSummaryList.class);
+            DBHelper.insertMovieSummary(movieSummaryList.result);
         }
+    }
+
+    public void requestMovieDetailsInfo(int id) {
+        String url = "http://" + RequestHelper.host + ":" + RequestHelper.port + "/movie/readMovie?id=";
+        url += id;
+
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        ResponseMovieInfo info = gson.fromJson(response, ResponseMovieInfo.class);
+
+                        if(info.code == 200) {
+                            movieDetailsList = gson.fromJson(response, MovieDetailsList.class);
+                            // insert MovieDetails
+                            DBHelper.insertMovieDetails(movieDetailsList.result.get(0));
+                            showDetailsPage();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+        request.setShouldCache(false);
+        RequestHelper.requestQueue.add(request);
+    }
+
+    public void showDetailsPage() {
+        mMovieDetailFragment = MovieDetailFragment.newInstance(movieDetailsList.result.get(0));
+        FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, mMovieDetailFragment);
+        transaction.addToBackStack(null);   // for BackPressed
+        transaction.commit();
+        mToolbar.setTitle("영화 상세");
+    }
+
+    @Override
+    public void onDetailSelected(int id) {
+        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            requestMovieDetailsInfo(id);
+        }else {
+            Toast.makeText(getApplicationContext(), "네트워크 연결 없음(DB에서 상세 정보 불러옴)", Toast.LENGTH_LONG).show();
+            // DB에서 불러오기
+            movieDetailsList.result = DBHelper.selectMovieDetailsInfos(id);
+            if(movieDetailsList.result.size() != 0) {
+                showDetailsPage();
+            }else {
+                Toast.makeText(getApplicationContext(), "저장된 데이터 없음", Toast.LENGTH_LONG).show();
+            }
+        }
+
     }
 
 }

@@ -32,7 +32,6 @@ public class MovieDetailsInfo implements Parcelable {
     public int id;
     public String date;
     public float user_rating;
-    public String title_eng;
     public float audience_rating;
     public float reviewer_rating;
     public float reservation_rate;
@@ -52,12 +51,11 @@ public class MovieDetailsInfo implements Parcelable {
     public int like;
     public int dislike;
 
-    public MovieDetailsInfo(String title, int id, String date, float user_rating, String title_eng, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image, String photos, String videos, String outlinks, String genre, int duration, int audience, String synopsis, String director, String actor, int like, int dislike) {
+    public MovieDetailsInfo(String title, int id, String date, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image, String photos, String videos, String outlinks, String genre, int duration, int audience, String synopsis, String director, String actor, int like, int dislike) {
         this.title = title;
         this.id = id;
         this.date = date;
         this.user_rating = user_rating;
-        this.title_eng = title_eng;
         this.audience_rating = audience_rating;
         this.reviewer_rating = reviewer_rating;
         this.reservation_rate = reservation_rate;
@@ -83,7 +81,6 @@ public class MovieDetailsInfo implements Parcelable {
         this.id = src.readInt();
         this.date = src.readString();
         this.user_rating = src.readFloat();
-        this.title_eng = src.readString();
         this.audience_rating = src.readFloat();
         this.reviewer_rating = src.readFloat();
         this.reservation_rate = src.readFloat();
@@ -127,7 +124,6 @@ public class MovieDetailsInfo implements Parcelable {
         dest.writeInt(id);
         dest.writeString(date);
         dest.writeFloat(user_rating);
-        dest.writeString(title_eng);
         dest.writeFloat(audience_rating);
         dest.writeFloat(reviewer_rating);
         dest.writeFloat(reservation_rate);
@@ -178,14 +174,6 @@ public class MovieDetailsInfo implements Parcelable {
 
     public void setUser_rating(float user_rating) {
         this.user_rating = user_rating;
-    }
-
-    public String getTitle_eng() {
-        return title_eng;
-    }
-
-    public void setTitle_eng(String title_eng) {
-        this.title_eng = title_eng;
     }
 
     public float getAudience_rating() {

@@ -20,11 +20,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.simpleapp.R;
+import com.example.simpleapp.db.DBHelper;
 import com.example.simpleapp.model.MovieDetailsInfo;
 import com.example.simpleapp.model.ResponseReviewInfo;
 import com.example.simpleapp.model.Review;
 import com.example.simpleapp.adapter.ReviewListViewAdapter;
 import com.example.simpleapp.model.ReviewList;
+import com.example.simpleapp.util.NetworkHelper;
 import com.example.simpleapp.util.RequestHelper;
 import com.google.gson.Gson;
 
@@ -38,23 +40,12 @@ public class AllReviewActivity extends AppCompatActivity {
     ListView mReviewListView;
 
     ReviewListViewAdapter mAdapter;
-    ArrayList<Review> mReviewList;
+    ArrayList<Review> mReviewList = new ArrayList<Review>();
+    ReviewList reviewList = new ReviewList();
 
     MovieDetailsInfo movieInfo;
 
-    public enum reqType {
-        COMMENTING(101);
-
-        private final int value;
-
-        reqType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
+    public final int COMMENTING_NUM = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +59,7 @@ public class AllReviewActivity extends AppCompatActivity {
         mReviewWriteTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent rv_intent = new Intent(getApplicationContext(), ReviewWriteActivity.class);
-                rv_intent.putExtra("movieInfo", movieInfo);
-                startActivityForResult(rv_intent, reqType.COMMENTING.getValue());
+                goCommenting();
             }
         });
 
@@ -88,16 +77,26 @@ public class AllReviewActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         movieInfo = intent.getParcelableExtra("movieInfo");
-        mReviewList = intent.getParcelableArrayListExtra("reviewList");
+//        mReviewList = intent.getParcelableArrayListExtra("reviewList");
+        requestReviewList();
 
         mAr_movieTitle.setText(movieInfo.title);
         mRatingBar.setRating(movieInfo.user_rating);
         mAr_rating.setText(Float.toString(movieInfo.user_rating * 2));
-        mAr_reviewerNum.setText(Integer.toString(mReviewList.size()));
+//        mAr_reviewerNum.setText(Integer.toString(mReviewList.size()));
+//        mAdapter = new ReviewListViewAdapter(mReviewList);
+//        mReviewListView.setAdapter(mAdapter);
 
-        mAdapter = new ReviewListViewAdapter(mReviewList);
-        mReviewListView.setAdapter(mAdapter);
+    }
 
+    public void goCommenting() {
+        if(NetworkHelper.TYPE_NOT_CONNECTED != NetworkHelper.TYPE_NOT_CONNECTED) {
+            Intent rv_intent = new Intent(getApplicationContext(), ReviewWriteActivity.class);
+            rv_intent.putExtra("movieInfo", movieInfo);
+            startActivityForResult(rv_intent, COMMENTING_NUM);
+        }else {
+            Toast.makeText(getApplicationContext(),"작성 불가(네트워크 연결 없음)", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void goMain() {
@@ -131,7 +130,7 @@ public class AllReviewActivity extends AppCompatActivity {
             requestReviewList();
         }
 
-        if (requestCode == reqType.COMMENTING.getValue()) {
+        if (requestCode == COMMENTING_NUM) {
             if (data != null) {
                 Review item = (Review) data.getParcelableExtra("new_Review");
                 mReviewList.add(item);
@@ -142,43 +141,65 @@ public class AllReviewActivity extends AppCompatActivity {
 
 
     public void requestReviewList() {
-        String url = "http://" + RequestHelper.host + ":" + RequestHelper.port +
-                "/movie/readCommentList?id=";
-        url += movieInfo.id + "&length=" + 100;
+        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            String url = "http://" + RequestHelper.host + ":" + RequestHelper.port +
+                    "/movie/readCommentList?id=";
+            url += movieInfo.id + "&length=" + 50;
 
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        processReviewList(response);
+            StringRequest request = new StringRequest(
+                    Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            processReviewList(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+            );
 
-        request.setShouldCache(false);
-        RequestHelper.requestQueue.add(request);
+            request.setShouldCache(false);
+            RequestHelper.requestQueue.add(request);
+        }else {
+            Toast.makeText(getApplicationContext(), "네트워크 연결없음(DB에서 리뷰 불러옴)", Toast.LENGTH_LONG).show();
+            reviewList.result.addAll(DBHelper.selectReviews(movieInfo.id));
+
+            if(reviewList.result.size() == 0) {
+                Toast.makeText(getApplicationContext(), "저장된 데이터 없음", Toast.LENGTH_LONG).show();
+            }else {
+                showReviewListView();
+            }
+
+        }
+
     }
 
     public void processReviewList(String response) {
         Gson gson = new Gson();
         ResponseReviewInfo info = gson.fromJson(response, ResponseReviewInfo.class);
         if (info.code == 200) {
-            ReviewList reviewList = gson.fromJson(response, ReviewList.class);
+            reviewList = gson.fromJson(response, ReviewList.class);
 
-            mReviewList.clear();
-            mReviewList.addAll(reviewList.result);
-            // reviewListView setting
-            mAdapter = new ReviewListViewAdapter(mReviewList);
-            mReviewListView.setAdapter(mAdapter);
+            DBHelper.insertReview(reviewList.result);
+            showReviewListView();
         }
+    }
+
+    public void showReviewListView() {
+        if(mReviewList.size() != 0) {
+            mReviewList.clear();
+        }
+        mReviewList.addAll(reviewList.result);
+        mAr_reviewerNum.setText(Integer.toString(mReviewList.size()));
+
+        // reviewListView setting
+        mAdapter = new ReviewListViewAdapter(mReviewList);
+        mReviewListView.setAdapter(mAdapter);
     }
 
 }

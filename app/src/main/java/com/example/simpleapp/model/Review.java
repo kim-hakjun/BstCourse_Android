@@ -19,16 +19,20 @@ public class Review implements Parcelable {
     public int id;
     public String writer;
     public int movieId;
+    public String writer_image;
     public String time;
+    public long timestamp;
     public float rating;
     public String contents;
     public int recommend;
 
-    public Review(int id, String writer, int movieId, String time, float rating, String contents, int recommend) {
+    public Review(int id, String writer, int movieId, String writer_image, String time, long timestamp, float rating, String contents, int recommend) {
         this.id = id;
         this.writer = writer;
         this.movieId = movieId;
+        this.writer_image = writer_image;
         this.time = time;
+        this.timestamp = timestamp;
         this.rating = rating;
         this.contents = contents;
         this.recommend = recommend;
@@ -38,7 +42,9 @@ public class Review implements Parcelable {
         this.id = src.readInt();
         this.writer = src.readString();
         this.movieId = src.readInt();
+        this.writer_image = src.readString();
         this.time = src.readString();
+        this.timestamp = src.readLong();
         this.rating = src.readFloat();
         this.contents = src.readString();
         this.recommend = src.readInt();
@@ -66,7 +72,9 @@ public class Review implements Parcelable {
         dest.writeInt(id);
         dest.writeString(writer);
         dest.writeInt(movieId);
+        dest.writeString(writer_image);
         dest.writeString(time);
+        dest.writeLong(timestamp);
         dest.writeFloat(rating);
         dest.writeString(contents);
         dest.writeInt(recommend);
@@ -96,12 +104,28 @@ public class Review implements Parcelable {
         this.movieId = movieId;
     }
 
+    public String getWriter_image() {
+        return writer_image;
+    }
+
+    public void setWriter_image(String writer_image) {
+        this.writer_image = writer_image;
+    }
+
     public String getTime() {
         return time;
     }
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public float getRating() {

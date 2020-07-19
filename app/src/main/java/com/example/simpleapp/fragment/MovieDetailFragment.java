@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.example.simpleapp.R;
+import com.example.simpleapp.db.DBHelper;
 import com.example.simpleapp.model.ResponseReviewInfo;
 import com.example.simpleapp.model.Review;
 import com.example.simpleapp.adapter.ReviewListViewAdapter;
@@ -36,6 +36,7 @@ import com.example.simpleapp.activity.AllReviewActivity;
 import com.example.simpleapp.activity.ReviewWriteActivity;
 import com.example.simpleapp.model.MovieDetailsInfo;
 import com.example.simpleapp.model.ReviewList;
+import com.example.simpleapp.util.NetworkHelper;
 import com.example.simpleapp.util.RequestHelper;
 import com.google.gson.Gson;
 
@@ -54,24 +55,14 @@ public class MovieDetailFragment extends Fragment {
     private RatingBar mRatingBar;
     private ReviewListViewAdapter mAdapter;
     private ArrayList<Review> mReviewList = new ArrayList<>();
+    ReviewList reviewList = new ReviewList();
 
     private boolean mThumbUpState, mThumbDownState;
 
+    private final int req_COMMENTING = 101;
+    private final int req_viewAllReview = 102;
+
     MovieDetailsInfo movieDetailsInfo;
-
-    public enum reqType {
-        COMMENTING(101), viewAllReview(102);
-
-        private final int value;
-
-        reqType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 
     public static MovieDetailFragment newInstance(MovieDetailsInfo info) {
         MovieDetailFragment frag = new MovieDetailFragment();
@@ -109,6 +100,7 @@ public class MovieDetailFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         init(rootView);
+        // 영화 리뷰목록 요청
         requestReviewList();
 
         // thumbUpBtn Pressed
@@ -127,7 +119,7 @@ public class MovieDetailFragment extends Fragment {
             }
         });
 
-        // To solve Scroll problem betwwn listView and ScrollView
+        // To solve Scroll problem between listView and ScrollView
         mReviewListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -196,61 +188,81 @@ public class MovieDetailFragment extends Fragment {
         mRatingBar = (RatingBar) root.findViewById(R.id.ratingBarInDetails);
 
         // setting View
-        Glide.with(getActivity()).load(movieDetailsInfo.image).into(mPosterView);
-        mMovieTitleText.setText(movieDetailsInfo.title);
-        mDateText.setText(movieDetailsInfo.date);
-        mGenreText.setText(movieDetailsInfo.genre);
-        mDurationText.setText(Integer.toString(movieDetailsInfo.duration));
-        mThumbUpCntText.setText(Integer.toString(movieDetailsInfo.like));
-        mThumbDownCntText.setText(Integer.toString(movieDetailsInfo.dislike));
-        mReservationGradeText.setText(Integer.toString(movieDetailsInfo.reservation_grade));
-        mReservationRateText.setText(Float.toString(movieDetailsInfo.reservation_rate));
-        mRatingBar.setRating(movieDetailsInfo.user_rating);
-        mReviewerRatingText.setText(Float.toString(movieDetailsInfo.user_rating * 2));
-        mAudienceText.setText(Integer.toString(movieDetailsInfo.audience));
-        mSynopsisText.setText(movieDetailsInfo.synopsis);
-        mMovieDirectorText.setText(movieDetailsInfo.director);
-        mMovieActorText.setText(movieDetailsInfo.actor);
+        Glide.with(getActivity()).load(movieDetailsInfo.getImage()).into(mPosterView);
+        mMovieTitleText.setText(movieDetailsInfo.getTitle());
+        mDateText.setText(movieDetailsInfo.getDate());
+        mGenreText.setText(movieDetailsInfo.getGenre());
+        mDurationText.setText(Integer.toString(movieDetailsInfo.getDuration()));
+        mThumbUpCntText.setText(Integer.toString(movieDetailsInfo.getLike()));
+        mThumbDownCntText.setText(Integer.toString(movieDetailsInfo.getDislike()));
+        mReservationGradeText.setText(Integer.toString(movieDetailsInfo.getReservation_grade()));
+        mReservationRateText.setText(Float.toString(movieDetailsInfo.getReservation_rate()));
+        mRatingBar.setRating(movieDetailsInfo.getUser_rating());
+        mReviewerRatingText.setText(Float.toString(movieDetailsInfo.getUser_rating() * 2));
+        mAudienceText.setText(Integer.toString(movieDetailsInfo.getAudience()));
+        mSynopsisText.setText(movieDetailsInfo.getSynopsis());
+        mMovieDirectorText.setText(movieDetailsInfo.getDirector());
+        mMovieActorText.setText(movieDetailsInfo.getActor());
     }
 
     public void requestReviewList() {
-        String url = "http://" + RequestHelper.host + ":" + RequestHelper.port + "/movie/readCommentList?id=";
-        url += movieDetailsInfo.id + "&length=" + 100;
+        if(NetworkHelper.getConnectivityStatus(getActivity()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            String url = "http://" + RequestHelper.host + ":" + RequestHelper.port + "/movie/readCommentList?id=";
+            url += movieDetailsInfo.id + "&length=" + 5;
 
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        processReviewList(response);
+            StringRequest request = new StringRequest(
+                    Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            processReviewList(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+            );
 
-        request.setShouldCache(false);
-        RequestHelper.requestQueue.add(request);
+            request.setShouldCache(false);
+            RequestHelper.requestQueue.add(request);
+        }else {
+            Toast.makeText(getActivity(), "네트워크 연결없음(DB에서 리뷰 불러옴)", Toast.LENGTH_LONG).show();
+            reviewList.result.addAll(DBHelper.selectReviews(movieDetailsInfo.id));
+
+            if(reviewList.result.size() == 0) {
+                Toast.makeText(getActivity(), "저장된 데이터 없음", Toast.LENGTH_LONG).show();
+            }else {
+                showReviewListView();
+            }
+        }
+
     }
 
     public void processReviewList(String response) {
         Gson gson = new Gson();
         ResponseReviewInfo info = gson.fromJson(response, ResponseReviewInfo.class);
         if (info.code == 200) {
-            ReviewList reviewList = gson.fromJson(response, ReviewList.class);
+            reviewList = gson.fromJson(response, ReviewList.class);
 
-            mReviewList.clear();
-            mReviewList.addAll(reviewList.result);
-            // reviewListView setting
-            mAdapter = new ReviewListViewAdapter(mReviewList);
-            mAdapter.notifyDataSetChanged();
-            mReviewListView.setAdapter(mAdapter);
+            DBHelper.insertReview(reviewList.result);
+            Toast.makeText(getActivity(), "DB에 리뷰 저장", Toast.LENGTH_LONG).show();
+            showReviewListView();
         }
+    }
+
+    public void showReviewListView() {
+        if(mReviewList.size() != 0) {
+            mReviewList.clear();
+        }
+        mReviewList.addAll(reviewList.result);
+        // reviewListView setting
+        mAdapter = new ReviewListViewAdapter(mReviewList);
+        mAdapter.notifyDataSetChanged();
+        mReviewListView.setAdapter(mAdapter);
     }
 
     public void thumbUpBtnClicked() {
@@ -355,17 +367,21 @@ public class MovieDetailFragment extends Fragment {
 
     // 리뷰 작성 화면
     public void goCommenting() {
-        Intent rv_intent = new Intent(getActivity(), ReviewWriteActivity.class);
-        rv_intent.putExtra("movieInfo", movieDetailsInfo);
-        startActivityForResult(rv_intent, reqType.COMMENTING.getValue());
+        if(NetworkHelper.getConnectivityStatus(getActivity()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            Intent rv_intent = new Intent(getActivity(), ReviewWriteActivity.class);
+            rv_intent.putExtra("movieInfo", movieDetailsInfo);
+            startActivityForResult(rv_intent, req_COMMENTING);
+        }else {
+            Toast.makeText(getActivity(), "작성 불가(네트워크 연결 없음)", Toast.LENGTH_LONG).show();
+        }
     }
 
     // 리뷰 모두 보기 화면
     public void goAllReview() {
         Intent allReview_intent = new Intent(getActivity(), AllReviewActivity.class);
         allReview_intent.putExtra("movieInfo", movieDetailsInfo);
-        allReview_intent.putParcelableArrayListExtra("reviewList", mReviewList);
-        startActivityForResult(allReview_intent, reqType.viewAllReview.getValue());
+//        allReview_intent.putParcelableArrayListExtra("reviewList", mReviewList);
+        startActivityForResult(allReview_intent, req_viewAllReview);
     }
 
     @Override

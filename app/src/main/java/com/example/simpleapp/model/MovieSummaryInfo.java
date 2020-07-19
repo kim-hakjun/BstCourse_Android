@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class MovieSummaryInfo implements Parcelable {
-    public String title;
     public int id;
-    public String date;
+    public String title;
     public String title_eng;
+    public String date;
     public float user_rating;
     public float audience_rating;
     public float reviewer_rating;
@@ -17,11 +17,11 @@ public class MovieSummaryInfo implements Parcelable {
     public String thumb;
     public String image;
 
-    public MovieSummaryInfo(String title, int id, String date, String title_eng, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image) {
-        this.title = title;
+    public MovieSummaryInfo(int id, String title, String title_eng, String date, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image) {
         this.id = id;
-        this.date = date;
+        this.title = title;
         this.title_eng = title_eng;
+        this.date = date;
         this.user_rating = user_rating;
         this.audience_rating = audience_rating;
         this.reviewer_rating = reviewer_rating;
@@ -33,10 +33,10 @@ public class MovieSummaryInfo implements Parcelable {
     }
 
     public MovieSummaryInfo(Parcel src) {
-        this.title = src.readString();
         this.id = src.readInt();
-        this.date = src.readString();
+        this.title = src.readString();
         this.title_eng = src.readString();
+        this.date = src.readString();
         this.user_rating = src.readFloat();
         this.audience_rating = src.readFloat();
         this.reviewer_rating = src.readFloat();
@@ -66,10 +66,10 @@ public class MovieSummaryInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(title);
         dest.writeInt(id);
-        dest.writeString(date);
+        dest.writeString(title);
         dest.writeString(title_eng);
+        dest.writeString(date);
         dest.writeFloat(user_rating);
         dest.writeFloat(user_rating);
         dest.writeFloat(audience_rating);
@@ -81,14 +81,6 @@ public class MovieSummaryInfo implements Parcelable {
         dest.writeString(image);
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public int getId() {
         return id;
     }
@@ -97,12 +89,12 @@ public class MovieSummaryInfo implements Parcelable {
         this.id = id;
     }
 
-    public String getDate() {
-        return date;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getTitle_eng() {
@@ -111,6 +103,14 @@ public class MovieSummaryInfo implements Parcelable {
 
     public void setTitle_eng(String title_eng) {
         this.title_eng = title_eng;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public float getUser_rating() {
