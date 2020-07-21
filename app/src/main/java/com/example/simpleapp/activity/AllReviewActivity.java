@@ -90,7 +90,7 @@ public class AllReviewActivity extends AppCompatActivity {
     }
 
     public void goCommenting() {
-        if(NetworkHelper.TYPE_NOT_CONNECTED != NetworkHelper.TYPE_NOT_CONNECTED) {
+        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
             Intent rv_intent = new Intent(getApplicationContext(), ReviewWriteActivity.class);
             rv_intent.putExtra("movieInfo", movieInfo);
             startActivityForResult(rv_intent, COMMENTING_NUM);

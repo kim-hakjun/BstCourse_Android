@@ -3,7 +3,9 @@ package com.example.simpleapp.fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -28,6 +32,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.example.simpleapp.R;
+import com.example.simpleapp.activity.PhotoViewActivity;
+import com.example.simpleapp.adapter.SceneAdapter;
 import com.example.simpleapp.db.DBHelper;
 import com.example.simpleapp.model.ResponseReviewInfo;
 import com.example.simpleapp.model.Review;
@@ -36,6 +42,7 @@ import com.example.simpleapp.activity.AllReviewActivity;
 import com.example.simpleapp.activity.ReviewWriteActivity;
 import com.example.simpleapp.model.MovieDetailsInfo;
 import com.example.simpleapp.model.ReviewList;
+import com.example.simpleapp.model.Scene;
 import com.example.simpleapp.util.NetworkHelper;
 import com.example.simpleapp.util.RequestHelper;
 import com.google.gson.Gson;
@@ -53,7 +60,10 @@ public class MovieDetailFragment extends Fragment {
     private ListView mReviewListView;
     private ImageView mPosterView;
     private RatingBar mRatingBar;
+    private RecyclerView mRecyclerView;
+
     private ReviewListViewAdapter mAdapter;
+
     private ArrayList<Review> mReviewList = new ArrayList<>();
     ReviewList reviewList = new ReviewList();
 
@@ -187,6 +197,10 @@ public class MovieDetailFragment extends Fragment {
         // get RatingBar
         mRatingBar = (RatingBar) root.findViewById(R.id.ratingBarInDetails);
 
+        // get RecyclerView
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.galleryView);
+        setRecyclerView();
+
         // setting View
         Glide.with(getActivity()).load(movieDetailsInfo.getImage()).into(mPosterView);
         mMovieTitleText.setText(movieDetailsInfo.getTitle());
@@ -203,6 +217,49 @@ public class MovieDetailFragment extends Fragment {
         mSynopsisText.setText(movieDetailsInfo.getSynopsis());
         mMovieDirectorText.setText(movieDetailsInfo.getDirector());
         mMovieActorText.setText(movieDetailsInfo.getActor());
+    }
+
+    public void setRecyclerView() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        final SceneAdapter sceneAdapter = new SceneAdapter(getActivity());
+
+        // 이미지
+
+        if(movieDetailsInfo.getPhotos() != null) {
+            String[] imageUrlArray = movieDetailsInfo.getPhotos().split(",");
+            for(int i = 0; i < imageUrlArray.length; i++) {
+                sceneAdapter.addItem(new Scene(imageUrlArray[i], null,true));
+            }
+        }
+
+        // 동영상
+        if(movieDetailsInfo.getVideos() != null) {
+            String[] videoUrlArray = movieDetailsInfo.getVideos().split(",");
+            for(int i = 0; i < videoUrlArray.length; i++) {
+                String head = "https://img.youtube.com/vi/";
+                String tail = "/0.jpg";
+
+                String thumbnail = head + videoUrlArray[i].substring(videoUrlArray[i].lastIndexOf('/') + 1) + tail;
+                sceneAdapter.addItem(new Scene(thumbnail, videoUrlArray[i], false));
+            }
+        }
+
+        mRecyclerView.setAdapter(sceneAdapter);
+        sceneAdapter.setOnItemClickListener(new SceneAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(SceneAdapter.ViewHolder holder, View view, int position) {
+                Scene curScene = sceneAdapter.getItem(position);
+                if(curScene.getIsImage()) {
+                    Intent intent = new Intent(getActivity(), PhotoViewActivity.class);
+                    intent.putExtra("imageUrl", curScene.getImageUrl());
+                    startActivity(intent);
+                }else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(curScene.getVideoUrl()));
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     public void requestReviewList() {
