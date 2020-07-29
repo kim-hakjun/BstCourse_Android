@@ -11,13 +11,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.usage.NetworkStats;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -28,8 +34,6 @@ import com.example.simpleapp.db.DBHelper;
 import com.example.simpleapp.fragment.HomeFragment;
 import com.example.simpleapp.fragment.MovieDetailFragment;
 import com.example.simpleapp.fragment.MovieListFragment;
-import com.example.simpleapp.fragment.MoviePreviewFragment;
-import com.example.simpleapp.adapter.MovieViewPagerAdapter;
 import com.example.simpleapp.R;
 import com.example.simpleapp.fragment.TempFragment;
 import com.example.simpleapp.model.MovieDetailsList;
@@ -40,9 +44,7 @@ import com.example.simpleapp.util.RequestHelper;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentCallback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentCallback, View.OnClickListener {
 
     private DrawerLayout mDrawer;
     private NavigationView navigationView;
@@ -52,9 +54,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager mFragmentManager;
     private MovieDetailFragment mMovieDetailFragment;
 
-    private MovieViewPagerAdapter mMovieViewPagerAdapter;
-    private ArrayList<MoviePreviewFragment> mMoviePreviewFragmentList = new ArrayList<>();
+    private LinearLayout mSortLayout;
+    private ImageView mSortBase;
+    private ImageView mSortReservationView;
+    private ImageView mSortCurationView;
+    private ImageView mSortReleaseView;
 
+    Boolean isShown = false;
+
+    Animation translateUp;
+    Animation translateDown;
 
     MovieSummaryList movieSummaryList = new MovieSummaryList();
     MovieDetailsList movieDetailsList = new MovieDetailsList();
@@ -72,6 +81,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMovieViewPager = findViewById(R.id.viewpager);
         mFragmentManager = getSupportFragmentManager();
 
+        mSortLayout = findViewById(R.id.sort_anim);
+        mSortBase = findViewById(R.id.sort_base);
+        mSortBase.setOnClickListener(this);
+        mSortReservationView = findViewById(R.id.sort_reservation);
+        mSortReservationView.setOnClickListener(this);
+        mSortCurationView = findViewById(R.id.sort_curation);
+        mSortCurationView.setOnClickListener(this);
+        mSortReleaseView = findViewById(R.id.sort_release);
+        mSortReleaseView.setOnClickListener(this);
+
+        translateUp = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_up);
+        translateUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                isShown = false;
+                mSortLayout.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        translateDown = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_down);
+
         setSupportActionBar(mToolbar);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
-
 
         // 초기 화면
         FragmentTransaction transaction = mFragmentManager.beginTransaction().add(R.id.frameContainer, HomeFragment.newInstance());
@@ -89,17 +125,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // open DB
         DBHelper.openDB(getApplicationContext());
 
-        // 영화 목록 데이터 받기
-        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
-            if(RequestHelper.requestQueue == null) {
-                RequestHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-            }
-            requestMovieList();
-        }else {
-            Toast.makeText(getApplicationContext(), "네트워크 연결 없음(DB에서 불러옴)", Toast.LENGTH_LONG).show();
-            // DB에서 불러오기
-            movieSummaryList.result = DBHelper.selectMovieSummaryInfos();
-        }
+        // 영화 목록 데이터 받기 및 view 초기화
+        getMovieList(1);
 
     }
 
@@ -110,12 +137,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
 
     @Override
@@ -162,9 +183,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void requestMovieList() {
-        String url = "http://" + RequestHelper.host + ":" + Integer.toString(RequestHelper.port) + "/movie/readMovieList";
-        url += "?" + "type=1";
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        mSortLayout.bringToFront();
+
+        switch (id) {
+            case R.id.sort_base :
+                if(isShown) {
+                    mSortLayout.startAnimation(translateUp);
+                }else {
+                    mSortLayout.setVisibility(View.VISIBLE);
+                    mSortLayout.startAnimation(translateDown);
+                }
+                isShown = !isShown;
+                break;
+
+            case R.id.sort_reservation :
+                mSortBase.setImageResource(R.drawable.order11);
+                mSortLayout.startAnimation(translateUp);
+                getMovieList(1);
+                break;
+
+            case R.id.sort_curation :
+                mSortBase.setImageResource(R.drawable.order22);
+                mSortLayout.startAnimation(translateUp);
+                getMovieList(2);
+                break;
+
+            case R.id.sort_release :
+                mSortBase.setImageResource(R.drawable.order33);
+                mSortLayout.startAnimation(translateUp);
+                getMovieList(3);
+                break;
+        }
+    }
+
+    public void getMovieList(int param) {
+        if(NetworkHelper.getConnectivityStatus(getApplicationContext()) != NetworkHelper.TYPE_NOT_CONNECTED) {
+            if(RequestHelper.requestQueue == null) {
+                RequestHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+            }
+            requestMovieList(param);
+        }else {
+            Toast.makeText(getApplicationContext(), "네트워크 연결 없음(DB에서 불러옴)", Toast.LENGTH_LONG).show();
+            // DB에서 불러오기
+            movieSummaryList.result = DBHelper.selectMovieSummaryInfos(param);
+
+            if(movieSummaryList.result.size() == 0) {
+                Toast.makeText(getApplicationContext(), "저장된 데이터 없음", Toast.LENGTH_LONG).show();
+            }else {
+                mToolbar.setTitle("영화 목록");
+                FragmentTransaction transaction = mFragmentManager.beginTransaction().replace(R.id.frameContainer, MovieListFragment.newInstance(movieSummaryList.result));
+                transaction.addToBackStack(null);   // for BackPressed
+                transaction.commit();
+            }
+        }
+    }
+
+    public void requestMovieList(int param) {
+        String url = "http://" + RequestHelper.host + ":" + Integer.toString(RequestHelper.port) + "/movie/readMovieList?";
+        url += "type=" + Integer.toString(param);
 
         StringRequest request = new StringRequest(
                 Request.Method.GET,
@@ -179,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
-
                     }
                 }
         );
@@ -198,6 +277,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(info.code == 200) {
             movieSummaryList = gson.fromJson(response, MovieSummaryList.class);
             DBHelper.insertMovieSummary(movieSummaryList.result);
+
+            mToolbar.setTitle("영화 목록");
+            FragmentTransaction transaction = mFragmentManager.beginTransaction().replace(R.id.frameContainer, MovieListFragment.newInstance(movieSummaryList.result));
+            transaction.addToBackStack(null);   // for BackPressed
+            transaction.commit();
         }
     }
 

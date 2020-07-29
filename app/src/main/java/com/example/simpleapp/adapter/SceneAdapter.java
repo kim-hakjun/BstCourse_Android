@@ -1,7 +1,6 @@
 package com.example.simpleapp.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,56 +21,17 @@ public class SceneAdapter extends RecyclerView.Adapter<SceneAdapter.ViewHolder> 
     Context context;
     ArrayList<Scene> scenes = new ArrayList<Scene>();
 
-    OnItemClickListener listener;
+    public interface MyOnItemClickListener {
+        void OnItemClick(ViewHolder holder, View view, int position);
+    }
 
-    public interface OnItemClickListener {
-        public void OnItemClick(ViewHolder holder, View view, int position);
+    MyOnItemClickListener mListener;
+    public void setOnItemClickListener(MyOnItemClickListener listener) {
+        this.mListener = listener;
     }
 
     public SceneAdapter(Context context) {
         this.context = context;
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        ImageView videoView;
-        OnItemClickListener listener;
-
-        public ViewHolder(@NonNull View itemView) { // 뷰 홀더가 갖을 view
-            super(itemView);
-
-            imageView = (ImageView)itemView.findViewById(R.id.sceneImageView);
-            videoView = (ImageView)itemView.findViewById(R.id.sceneVideoView);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-
-                    if(listener != null) {
-                        listener.OnItemClick(ViewHolder.this, v, position);
-                    }
-                }
-            });
-        }
-
-        public void setItem(Scene scene) {
-            Glide.with(context).load(scene.getImageUrl()).into(imageView);
-            if(scene.getIsImage()) {
-                videoView.setVisibility(View.GONE);
-            }else {
-                videoView.setVisibility(View.VISIBLE);
-            }
-        }
-
-        public void setOnItemClickListener(OnItemClickListener listener) {
-            this.listener = listener;
-        }
-
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
     }
 
     @NonNull
@@ -88,7 +48,6 @@ public class SceneAdapter extends RecyclerView.Adapter<SceneAdapter.ViewHolder> 
         Scene item = scenes.get(position);
         holder.setItem(item);
 
-        holder.setOnItemClickListener(listener);
     }
 
     @Override
@@ -106,6 +65,40 @@ public class SceneAdapter extends RecyclerView.Adapter<SceneAdapter.ViewHolder> 
 
     public Scene getItem(int position) {
         return scenes.get(position);
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+        ImageView videoView;
+
+        public ViewHolder(@NonNull View itemView) { // 뷰 홀더가 갖을 view
+            super(itemView);
+
+            imageView = (ImageView)itemView.findViewById(R.id.sceneImageView);
+            videoView = (ImageView)itemView.findViewById(R.id.sceneVideoView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+
+                    if(mListener != null) {
+                        mListener.OnItemClick(ViewHolder.this, v, position);
+                    }
+                }
+            });
+        }
+
+        public void setItem(Scene scene) {
+            Glide.with(context).load(scene.getImageUrl()).into(imageView);
+            if(scene.getIsImage()) {
+                videoView.setVisibility(View.GONE);
+            }else {
+                videoView.setVisibility(View.VISIBLE);
+            }
+        }
+
     }
 
 }

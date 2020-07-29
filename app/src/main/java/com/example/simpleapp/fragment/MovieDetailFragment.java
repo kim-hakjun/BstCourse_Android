@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -246,7 +245,7 @@ public class MovieDetailFragment extends Fragment {
         }
 
         mRecyclerView.setAdapter(sceneAdapter);
-        sceneAdapter.setOnItemClickListener(new SceneAdapter.OnItemClickListener() {
+        sceneAdapter.setOnItemClickListener(new SceneAdapter.MyOnItemClickListener() {
             @Override
             public void OnItemClick(SceneAdapter.ViewHolder holder, View view, int position) {
                 Scene curScene = sceneAdapter.getItem(position);

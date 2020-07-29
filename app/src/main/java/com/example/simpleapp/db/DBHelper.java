@@ -174,8 +174,16 @@ public class DBHelper {
         }catch (Exception e) {}
     }
 
-    public static ArrayList<MovieSummaryInfo> selectMovieSummaryInfos() {
-        String sql = "SELECT * FROM movie_summary";
+    public static ArrayList<MovieSummaryInfo> selectMovieSummaryInfos(int order) {
+        String sql = "SELECT * FROM movie_summary ";
+        if(order == 1) {
+            sql += "ORDER BY reservation_rate DESC";
+        }else if(order == 2) {  // 기준을 모르겠음
+            sql += "ORDER BY user_rating";
+        }else if(order == 3) {
+            sql += "ORDER BY date DESC";
+        }
+
         ArrayList<MovieSummaryInfo> ret = new ArrayList<MovieSummaryInfo>();
 
         try{

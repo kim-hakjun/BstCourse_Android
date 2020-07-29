@@ -23,7 +23,18 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="@string/app_name" />
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/app_name" >
+
+                <ImageView
+                    android:id="@+id/sort_base"
+                    android:layout_width="150dp"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_gravity="right"
+                    android:src="@drawable/order11" />
+
+
+            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -34,15 +45,35 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
 
-<!--            <androidx.viewpager.widget.ViewPager-->
-<!--                android:id="@+id/viewpager"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:paddingStart="40dp"-->
-<!--                android:paddingEnd="40dp"-->
-<!--                />-->
+            <LinearLayout
+                android:id="@+id/sort_anim"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:background="@android:color/holo_blue_dark"
+                android:orientation="vertical"
+                android:visibility="invisible"
+                >
 
+                <ImageView
+                    android:id="@+id/sort_reservation"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/order11" />
+                <ImageView
+                    android:id="@+id/sort_curation"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/order22" />
+                <ImageView
+                    android:id="@+id/sort_release"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/order33" />
+            </LinearLayout>
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
